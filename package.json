@@ -21,7 +21,7 @@
   "type": "module",
   "scripts": {
     "deploy": "yarn ts-node scripts/deploy.ts",
-    "asbuild:debug": "asc assembly/index.ts --target debug",
+    "asbuild:debug": "asc assembly/unitTestExports.ts --target debug",
     "asbuild:debug-live": "nodemon",
     "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js",
     "test:debug": "vite",
