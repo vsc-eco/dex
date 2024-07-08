@@ -6,6 +6,8 @@ import {
   contractEnv,
   setContractImport,
   finalizeTransaction,
+  balanceSnapshots,
+  contract_id,
 } from "@vsc.eco/contract-testing-utils";
 
 // import { beforeEach, describe, it } from "mocha";
@@ -19,19 +21,33 @@ beforeEach(reset);
 
 describe("withdraw", () => {
   it("should parse args", () => {
-    expect(contract.withdrawParseArgs(JSON.stringify({ to: "test2" }))).to.eql(
-      {}
+    expect(contract.withdrawParseArgs(JSON.stringify({ shares: "20" }))).to.eql(
+      { shares: "20" }
     );
   });
   it("should execute", () => {
-    expect(() =>
-      contract.withdrawExec(JSON.stringify({ to: "test2" }))
-    ).to.not.throw();
+    balanceSnapshots.set(contract_id, {
+      account: contract_id,
+      tokens: {
+        HIVE: 10,
+        HBD: 3,
+      },
+    });
+    stateCache.set(`shares/${contractEnv["msg.sender"]}`, "20");
+    expect(() => contract.withdrawExec({ shares: "20" })).to.not.throw();
     finalizeTransaction();
   });
   it("should run e2e", () => {
-    expect(contract.withdraw(JSON.stringify({ to: "test2" }))).to.equal(
-      JSON.stringify({})
+    balanceSnapshots.set(contract_id, {
+      account: contract_id,
+      tokens: {
+        HIVE: 10,
+        HBD: 3,
+      },
+    });
+    stateCache.set(`shares/${contractEnv["msg.sender"]}`, "20");
+    expect(contract.withdraw(JSON.stringify({ shares: "20" }))).to.equal(
+      JSON.stringify({ msg: "success" })
     );
     finalizeTransaction();
   });

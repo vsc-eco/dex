@@ -58,7 +58,7 @@ export function depositParseArgs(args: String): DepositArgs {
  *
  * @param from
  * @param amount
- * @param asset {'Hive' | 'HBD'}
+ * @param {'Hive' | 'HBD'} asset
  */
 function hiveDraw(from: String, amount: u64, asset: String): void {
   const drawArgs = new JSON.Obj();
