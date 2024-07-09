@@ -1,7 +1,8 @@
-import { SystemAPI, TxOutput, getEnv } from "@vsc.eco/sdk/assembly";
+import { TxOutput, getEnv } from "@vsc.eco/sdk/assembly";
 import { JSON } from "assemblyscript-json/assembly";
 import { addPoolShares, totalBalances } from "./storage";
 import { BigInt } from "as-bigint/assembly";
+import { hiveDraw } from "./sdk";
 
 class DepositArgs {
   public hbd: u64 = 0;
@@ -49,30 +50,9 @@ export function depositParseArgs(args: String): DepositArgs {
     res.hive = hive!.valueOf();
   }
 
-  assert((res.hbd === 0) != (res.hive === 0));
+  assert((res.hbd === 0) !== (res.hive === 0));
 
   return res;
-}
-
-/**
- *
- * @param from
- * @param amount
- * @param {'Hive' | 'HBD'} asset
- */
-function hiveDraw(from: String, amount: u64, asset: String): void {
-  const drawArgs = new JSON.Obj();
-  drawArgs.set("from", from);
-  drawArgs.set("amount", amount);
-  drawArgs.set("asset", asset);
-  const sysCallArgs = new JSON.Obj();
-  sysCallArgs.set("arg0", drawArgs.stringify());
-  const res = JSON.parse(SystemAPI.call("hive.draw", sysCallArgs.stringify()));
-  assert(res.isObj);
-  const rawCallResObj = (res as JSON.Obj).getObj("result");
-  const rawCallRes = rawCallResObj ? rawCallResObj.getString("result") : null;
-  const callRes = rawCallRes ? rawCallRes.valueOf() : "MALFORMED_RESULT";
-  assert(callRes === "SUCCESS", callRes);
 }
 
 export function depositExec(args: DepositArgs): TxOutput {

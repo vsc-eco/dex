@@ -1,7 +1,8 @@
-import { SystemAPI, TxOutput, getEnv } from "@vsc.eco/sdk/assembly";
+import { TxOutput, getEnv } from "@vsc.eco/sdk/assembly";
 import { BigInt } from "as-bigint/assembly";
 import { JSON } from "assemblyscript-json/assembly";
 import { poolShares, removePoolShares, totalBalances } from "./storage";
+import { hiveTransfer } from "./sdk";
 
 class WithdrawArgs {
   public shares: string = "";
@@ -15,29 +16,6 @@ export function withdrawParseArgs(args: String): WithdrawArgs {
   return {
     shares: rawShares!.valueOf(),
   };
-}
-
-/**
- *
- * @param from
- * @param amount
- * @param {'Hive' | 'HBD'} asset
- */
-function hiveTransfer(dest: String, amount: u64, asset: String): void {
-  const transferArgs = new JSON.Obj();
-  transferArgs.set("dest", dest);
-  transferArgs.set("amount", amount);
-  transferArgs.set("asset", asset);
-  const sysCallArgs = new JSON.Obj();
-  sysCallArgs.set("arg0", transferArgs.stringify());
-  const res = JSON.parse(
-    SystemAPI.call("hive.transfer", sysCallArgs.stringify())
-  );
-  assert(res.isObj);
-  const rawCallResObj = (res as JSON.Obj).getObj("result");
-  const rawCallRes = rawCallResObj ? rawCallResObj.getString("result") : null;
-  const callRes = rawCallRes ? rawCallRes.valueOf() : "MALFORMED_RESULT";
-  assert(callRes === "SUCCESS", callRes);
 }
 
 export function withdrawExec(args: WithdrawArgs): TxOutput {

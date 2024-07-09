@@ -3,7 +3,7 @@ import { BigInt } from "as-bigint/assembly";
 import { JSON } from "assemblyscript-json/assembly";
 
 // TODO move to SDK
-class Balances {
+export class Balances {
   public hbd: u64 = 0;
   public hive: u64 = 0;
 }
