@@ -1,0 +1,30 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`swap should run e2e 1`] = `
+[
+  {
+    "amount": -10,
+    "owner": "someAccountName",
+    "to": "vs41qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq99048g",
+    "unit": "HBD",
+  },
+  {
+    "amount": 10,
+    "from": "someAccountName",
+    "owner": "vs41qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq99048g",
+    "unit": "HBD",
+  },
+  {
+    "amount": -33,
+    "owner": "vs41qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq99048g",
+    "to": "someAccountName",
+    "unit": "HIVE",
+  },
+  {
+    "amount": 33,
+    "from": "vs41qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq99048g",
+    "owner": "someAccountName",
+    "unit": "HIVE",
+  },
+]
+`;

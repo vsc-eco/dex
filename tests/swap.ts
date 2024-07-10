@@ -9,31 +9,68 @@ import {
   balanceSnapshots,
   contract_id,
   intents,
+  ledgerStack,
 } from "@vsc.eco/contract-testing-utils";
 
-// import { beforeEach, describe, it } from "mocha";
-import { expect } from "chai";
+import { expect as chaiExpect, use, Assertion } from "chai";
+import chaiJestSnapshot from "chai-jest-snapshot";
+const beforeAll = globalThis.beforeAll || globalThis.before;
+use(chaiJestSnapshot);
+const expect = chaiExpect as unknown as (
+  val: any,
+  message?: string
+) => typeof Assertion & {
+  to: InstanceType<typeof Assertion> & {
+    matchSnapshot(): void;
+  };
+};
+// const { beforeAll, beforeEach, describe, it } = globalThis;
 
 const contractImport = import("../build/debug");
 
-beforeAll(() => setContractImport(contractImport));
+beforeAll(() => {
+  chaiJestSnapshot.resetSnapshotRegistry();
+  return setContractImport(contractImport);
+});
 
-beforeEach(reset);
+beforeEach(async () => {
+  // if (globalThis.alert) {
+  //   chaiJestSnapshot.configureUsingMochaContext(
+  //     // @ts-ignore
+  //     (await import("mocha")).default
+  //   );
+  // }
+  return reset();
+});
 
 describe("swap", () => {
   it("should parse args", () => {
-    expect(contract.swapParseArgs(JSON.stringify({ hbd: 10 }))).to.eql({
+    expect(
+      contract.swapParseArgs(
+        JSON.stringify({
+          hbd: 10,
+          maxSlippage: {
+            numerator: "2",
+            denominator: "100",
+          },
+        })
+      )
+    ).to.eql({
       hbd: 10n,
       hive: 0n,
       withdraw: false,
+      maxSlippage: {
+        numerator: "2",
+        denominator: "100",
+      },
     });
   });
   it("should execute", () => {
     balanceSnapshots.set(contract_id, {
       account: contract_id,
       tokens: {
-        HIVE: 10,
-        HBD: 3,
+        HIVE: 10000,
+        HBD: 3000,
       },
     });
     contractEnv["msg.sender"] = "someAccountName";
@@ -52,7 +89,15 @@ describe("swap", () => {
       },
     });
     expect(() =>
-      contract.swapExec({ hbd: 10n, hive: 0n, withdraw: false })
+      contract.swapExec({
+        hbd: 10n,
+        hive: 0n,
+        withdraw: false,
+        maxSlippage: {
+          numerator: "2",
+          denominator: "100",
+        },
+      })
     ).to.not.throw();
     finalizeTransaction();
   });
@@ -60,8 +105,8 @@ describe("swap", () => {
     balanceSnapshots.set(contract_id, {
       account: contract_id,
       tokens: {
-        HIVE: 10,
-        HBD: 3,
+        HIVE: 1000000000,
+        HBD: 300000000,
       },
     });
     contractEnv["msg.sender"] = "someAccountName";
@@ -79,11 +124,21 @@ describe("swap", () => {
         limit: 10,
       },
     });
-    expect(contract.swap(JSON.stringify({ hbd: 10 }))).to.equal(
+    expect(
+      contract.swap(
+        JSON.stringify({
+          hbd: 10,
+          maxSlippage: {
+            numerator: "2",
+            denominator: "100",
+          },
+        })
+      )
+    ).to.equal(
       JSON.stringify({
         ret: JSON.stringify({
-          hive: 4,
-          hbd: 2,
+          hive: 33,
+          hbd: 10,
           in: "HBD",
           out: "HIVE",
           withdraw: false,
@@ -91,5 +146,6 @@ describe("swap", () => {
       })
     );
     finalizeTransaction();
+    expect(ledgerStack).to.matchSnapshot();
   });
 });
