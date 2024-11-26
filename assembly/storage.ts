@@ -33,7 +33,16 @@ export function totalBalances(env: ENV_DEFINITION): Balances {
   return getBalances(env.contract_id);
 }
 
+// TODO fix contract VM so that this is not necessary
+function ensureObjectExists(path: String): void {
+  const obj = db.getObject(path);
+  if (obj === "null") {
+    db.setObject(path, "{}");
+  }
+}
+
 export function poolShares(user: String): BigInt {
+  ensureObjectExists("shares");
   const shares = db.getObject(`shares/${user}`);
   if (shares === "null") {
     return BigInt.ZERO;
@@ -42,6 +51,7 @@ export function poolShares(user: String): BigInt {
 }
 
 function setPoolShares(user: String, amount: BigInt): void {
+  ensureObjectExists("shares");
   db.setObject(`shares/${user}`, amount.toString());
 }
 
